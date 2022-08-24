@@ -1,0 +1,38 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+    - refs/heads/master
+  paths:
+    include:
+    - deploy_cert.ps1
+    - build_cert.ps1
+    - M365Configuration_cert.ps1
+
+variables:
+  buildFolderName: output
+  buildArtifactName: deploypackage
+
+pool: Microsoft365Dsc
+
+steps:
+- task: PowerShell@2
+  displayName: 'Run Build script'
+  inputs:
+    targetType: 'filePath'
+    filePath: 'build_cert.ps1'
+    pwsh: false
+    failOnStderr: true
+    errorActionPreference: 'stop'
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Pipeline Artifacts'
+  inputs:
+    targetPath: '$(buildFolderName)/'
+    artifact: $(buildArtifactName)
+    publishLocation: 'pipeline'
+    parallel: true
